@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>从Fourier变换到采样定理 | Notes on Digital Communication</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="从Fourier变换到采样定理" />
+<meta name="author" content="Jinchi Chen" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="采样定理广泛应用于通信中，比如在打电话的过程中，语音信号是连续的模拟信号，首先要把模拟信号转化为数字信号，这时会用到采样，比如在时间轴上均匀的获得模拟信号的幅度值。如果所示。我们关心的问题是：采样间隔需要多大，从而能从得到的样本中恢复出原始信号？" />
+<meta property="og:description" content="采样定理广泛应用于通信中，比如在打电话的过程中，语音信号是连续的模拟信号，首先要把模拟信号转化为数字信号，这时会用到采样，比如在时间轴上均匀的获得模拟信号的幅度值。如果所示。我们关心的问题是：采样间隔需要多大，从而能从得到的样本中恢复出原始信号？" />
+<link rel="canonical" href="http://localhost:4000/2023/01/29/sampling-theorem.html" />
+<meta property="og:url" content="http://localhost:4000/2023/01/29/sampling-theorem.html" />
+<meta property="og:site_name" content="Notes on Digital Communication" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-01-29T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="从Fourier变换到采样定理" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Jinchi Chen"},"dateModified":"2023-01-29T00:00:00+08:00","datePublished":"2023-01-29T00:00:00+08:00","description":"采样定理广泛应用于通信中，比如在打电话的过程中，语音信号是连续的模拟信号，首先要把模拟信号转化为数字信号，这时会用到采样，比如在时间轴上均匀的获得模拟信号的幅度值。如果所示。我们关心的问题是：采样间隔需要多大，从而能从得到的样本中恢复出原始信号？","headline":"从Fourier变换到采样定理","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2023/01/29/sampling-theorem.html"},"url":"http://localhost:4000/2023/01/29/sampling-theorem.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Notes on Digital Communication" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Notes on Digital Communication</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">从Fourier变换到采样定理</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2023-01-29T00:00:00+08:00" itemprop="datePublished">Jan 29, 2023
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>采样定理广泛应用于通信中，比如在打电话的过程中，语音信号是连续的模拟信号，首先要把模拟信号转化为数字信号，这时会用到采样，比如在时间轴上均匀的获得模拟信号的幅度值。如果所示。我们关心的问题是：采样间隔需要多大，从而能从得到的样本中恢复出原始信号？</p>
+
+<p>该问题的一个答案就是经典的采样定理，即对于频率有限的信号，如果采样频道大于两倍的信号最大频率，则可以能够从离散的样本中重构出原始的信号。</p>
+
+<p>本文将简单的回顾傅里叶(Fourier)变换及其一些常用的性质，然后给出采样定理的证明。为了简单期间，本文没有讨论什么函数有傅里叶变换，仅仅假设文中用到的信号或函数都有相应的傅里叶变换和逆变换。</p>
+
+<h4 id="fourier变换">Fourier变换</h4>
+
+<p>首先是Fourier变换及其逆变换的定义。</p>
+
+<p>给定 $x(t)$, 其Fourier变换记为$X(f)$，定义为：</p>
+
+\[x(t) \stackrel{\mathcal{F}}{\rightarrow}X(f) = \int x(t)e^{-j2\pi ft}dt.\]
+
+<p>给定信号$Y(f)$，它的Fourier逆变换记为$y(t)$，定义为</p>
+
+\[y(t) = \int Y(f)e^{j2\pi ft} df.\]
+
+<h4 id="fourier变换的性质">Fourier变换的性质</h4>
+
+<p>这一节介绍一些常用的Fourier变换的性质。有了这些性质，可以很容易从简单函数的Fourier变换得到一些函数常用函数的Fourier变换。具体包括如下三个，当然还有其它一些性质，本文没有深入探讨，感兴趣的读者可以参考Oppenheim et al., Signals and System这本书。</p>
+
+<p>假设$X(f)$是$x(t)$的Fourier变换：</p>
+
+<ul>
+  <li>
+    <p>线性性质：$a x(t)$的Fourier变换为$aX(f)$.</p>
+  </li>
+  <li>时移性质：$x(t-t_0)$的Fourier变换为$e^{-j2\pi ft_0}~X(f)$.</li>
+  <li>
+    <p>尺度变换性质: $x(\alpha t)$ 的Fourier变换为
+$\frac{1}{|\alpha|}X(f/\alpha)$.</p>
+  </li>
+  <li>对偶性质: $X(t)$的Fourier变换为$x(-f)$.</li>
+</ul>
+
+<p>为了熟悉这些性质，同时也为了后面一些推到的简便，这里给出一些简单函数的Fourier变换。</p>
+
+<ul>
+  <li>
+    <p>例1: 定义函数rect(t)为</p>
+
+\[rect(t) = \begin{cases}
+1, &amp;|t|\leq 0.5,\\
+0, &amp; o.w.
+\end{cases}\]
+
+    <p>该函数的傅里叶变换为</p>
+
+\[sinc(f) = \begin{cases}
+\frac{\sin(\pi f)}{\pi f},\quad&amp; f\neq 0\\
+1,\quad &amp;o.w.\\
+\end{cases}\]
+
+    <p>此外根据Fourier变换的线性性质、对偶性质以及尺度变换性质，可得:</p>
+
+\[\begin{align*}
+sinc(t) &amp;\stackrel{\mathcal{F}}{\rightarrow}rect(t),\\
+2f_H\cdot sinc(2f_H\cdot t)&amp;\stackrel{\mathcal{F}}{\rightarrow} rect(f/(2f_H)).
+\end{align*}\]
+  </li>
+  <li>
+    <p>例2: $\delta(t)$的傅里叶变换为</p>
+
+\[\int \delta(t)e^{-j2\pi ft}dt = 1\]
+
+    <p>则根据时移性质可知$\delta(t+\tau)$的傅里叶变换为</p>
+
+\[\int \delta(t+\tau)e^{-j2\pi ft}dt = \int \delta(t+\tau)e^{-j2\pi f(t+\tau)}dt\cdot e^{j2\pi f\tau}=e^{j2\pi f\tau}.\]
+
+    <p>另外利用对偶性质可知$e^{j2\pi t \tau}$的傅里叶变换为$\delta(-f+\tau)=\delta(f-\tau)$.</p>
+  </li>
+</ul>
+
+<h4 id="周期信号fourier变换">周期信号Fourier变换</h4>
+
+<p>假如$x(t)$是周期为$T_0$的信号，它的傅里叶级数为</p>
+
+\[a_k = \frac{1}{T}\int_{-T/2}^{T/2} x(t)e^{-j2\pi kf_0\cdot t}dt,\]
+
+<p>其中$f_0=1/T_0$. 因此$x(t)$的傅里叶级数展开为：</p>
+
+\[x(t) = \sum_{k=-\infty}^{\infty}a_k e^{j2\pi k f_0\cdot t}.\]
+
+<p>它的傅里叶变换为</p>
+
+\[X(f) =\sum_{k=-\infty}^{\infty}a_k\delta(f-kf_0)\]
+
+<p>通过如下例子来说明这些性质的应用。</p>
+
+<ul>
+  <li>
+    <p>例3: 计算周期信号</p>
+
+\[p(t) = \sum_{k=-\infty}^{\infty}\delta(t-kT_0)\]
+
+    <p>的傅里叶变换。因为信号为周期信号，周期为$T_0$，因此它的傅里叶级数可以计算为</p>
+
+\[\begin{align*}
+a_k &amp;= \frac{1}{T_0}\int_{-T_0/2}^{T_0/2}p(t)e^{-j2\pi kf_0 t}dt = \frac{1}{T_0}\int_{-T_0/2}^{T_0/2} \delta(t)e^{-j2\pi kf_0 t}dt\\
+&amp;=\frac{1}{T_0}.
+\end{align*}\]
+
+    <p>因此$p(t)$的傅里叶变换为</p>
+
+\[P(f) = \sum_{k=-\infty}^{\infty}a_k \delta(f-kf_0) = \frac{1}{T_0}\sum_{k=-\infty}^{\infty}\delta(f-kf_0) .\]
+  </li>
+</ul>
+
+<h4 id="采样定理">采样定理</h4>
+
+<p>采样得到的信号为</p>
+
+\[y(t) = \sum_{n=-\infty}^{\infty}x(nT_s)\delta(t-nT_s) = x(t)\cdot p(t).\]
+
+<p>其中$p(t)$是周期为$T_s$的周期脉冲函数。因此样本的频谱为</p>
+
+\[\begin{align*}
+Y(f) &amp;= X(f)\ast P(f)\\
+&amp;=\int X(\tau)P(f-\tau)d\tau\\
+&amp;=\int X(\tau) \frac{1}{T_s}\sum_{n=-\infty}^{\infty}\delta(f-nf_s -\tau)d\tau\\
+&amp;=\frac{1}{T_s}\sum_{n=-\infty}^{\infty}\int X(\tau)\delta(f-nf_s-\tau)d\tau\\
+&amp;=\frac{1}{T_s}\sum_{n=-\infty}^{\infty}X(f-nf_s).
+\end{align*}\]
+
+<p>因此如果$x(t)$的最大频谱$f_H$满足</p>
+
+\[f_H\leq \frac{f_s}{2}\]
+
+<p>时，不会发生频谱混叠现象。因此就可以从$y(t)$中重构出$x(t)$。具体做法是将$y(t)$通过一个低通滤波器。频率为</p>
+
+\[\hat{X}(f) = Y(f)\cdot rect(f/(2f_H)) = \frac{1}{T_s} X(f), \forall |f| \leq f_s/2.\]
+
+<p>在幅度上乘以$T_s$，在时域上等价于</p>
+
+\[\begin{align*}
+\hat{x}(t) &amp;= T_s\cdot y(t)\ast F^{-1}\left( rect(f/(2f_H))\right)\\
+&amp;=T_s\cdot y(t)\ast 2f_H\cdot sinc(2f_H\cdot t)\\
+&amp;=T_s\cdot  2f_H\cdot \sum_{n=-\infty}^{\infty}x(nT_s)\delta(t-nT_s)\ast sinc(2f_H\cdot t)\\
+&amp;=\sum_{n=-\infty}^{\infty}x(nT_s)sinc(2f_H\cdot (t-nT_s)).
+\end{align*}\]
+
+  </div><a class="u-url" href="/2023/01/29/sampling-theorem.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Notes on Digital Communication</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Jinchi Chen</li><li><a class="u-email" href="mailto:jcchen.phys@gmail.com">jcchen.phys@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>A research blog about communication and signal processing.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
